@@ -59,24 +59,7 @@
         <label class="field-label" for="taskType">
           Task Type
         </label>
-        <div class="search-wrapper">
-          <input type="text" id="taskSearch" class="field-input" placeholder="Search tasks..." autocomplete="off">
-          <div id="taskDropdown" class="dropdown" style="display:none;"></div>
-        </div>
-        <input type="hidden" id="taskType" value="">
-        <div id="selectedTask" class="selected-badge" style="display:none;">
-          <span id="selectedTaskText"></span>
-          <button id="clearTask" class="clear-btn" title="Clear selection">&times;</button>
-        </div>
-      </div>
-
-      <!-- Other Label (conditional) -->
-      <div id="otherGroup" class="field-group" style="display:none;">
-        <label class="field-label" for="otherLabel">
-          Other Task Label
-        </label>
-        <input type="text" id="otherLabel" class="field-input" placeholder='e.g. 260105-sketch-to-photorealistic'
-          value="X">
+        <input type="text" id="taskType" class="field-input" placeholder="e.g. 260126-desktop-app" value="">
       </div>
 
       <!-- Divider -->
@@ -147,7 +130,6 @@
     </div>
   </div>
 
-  <script src="tasks.js"></script>
   <script src="popup.js"></script>
 </body>
 

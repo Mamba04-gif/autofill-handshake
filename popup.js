@@ -2,14 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // DOM refs
-  const taskSearch = document.getElementById('taskSearch');
-  const taskDropdown = document.getElementById('taskDropdown');
   const taskTypeInput = document.getElementById('taskType');
-  const selectedTask = document.getElementById('selectedTask');
-  const selectedTaskText = document.getElementById('selectedTaskText');
-  const clearTask = document.getElementById('clearTask');
-  const otherGroup = document.getElementById('otherGroup');
-  const otherLabel = document.getElementById('otherLabel');
   const qualityScore = document.getElementById('qualityScore');
   const excellent = document.getElementById('excellent');
   const good = document.getElementById('good');
@@ -24,28 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileOptions = document.getElementById('profileOptions');
   const profileSelectInput = document.getElementById('profileSelect');
 
-  let activeDropdownIndex = -1;
-  let activeProfile = '1';
-
   // ---- Load saved defaults ----
   function loadProfile(profileId) {
     chrome.storage.local.get([
-      `taskType_${profileId}`, `otherLabel_${profileId}`,
-      'qualityScore', 'excellent', 'good', 'fair', 'bad', 'autoAdvance'
+      `taskType_${profileId}`, 'qualityScore', 'excellent', 'good', 'fair', 'bad', 'autoAdvance'
     ], (data) => {
       // Clear task input first
-      taskTypeInput.value = '';
-      selectedTask.style.display = 'none';
-      taskSearch.style.display = '';
-      otherGroup.style.display = 'none';
-
-      if (data[`taskType_${profileId}`]) {
-        selectTask(data[`taskType_${profileId}`]);
-      } else {
-        selectedTaskText.textContent = '';
-      }
-
-      otherLabel.value = data[`otherLabel_${profileId}`] !== undefined ? data[`otherLabel_${profileId}`] : 'X';
+      taskTypeInput.value = data[`taskType_${profileId}`] || '';
 
       // Global settings
       qualityScore.value = data.qualityScore !== undefined ? data.qualityScore : '0';
@@ -115,115 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---- Task search / dropdown ----
-  const tasks = window.TASK_TYPES || [];
 
-  taskSearch.addEventListener('input', () => {
-    const query = taskSearch.value.trim().toLowerCase();
-    if (!query) {
-      taskDropdown.style.display = 'none';
-      return;
-    }
-
-    const filtered = tasks.filter(t => t.toLowerCase().includes(query));
-    if (filtered.length === 0) {
-      taskDropdown.style.display = 'none';
-      return;
-    }
-
-    activeDropdownIndex = -1;
-    renderDropdown(filtered, query);
-    taskDropdown.style.display = 'block';
-  });
-
-  taskSearch.addEventListener('focus', () => {
-    if (taskSearch.value.trim()) {
-      taskSearch.dispatchEvent(new Event('input'));
-    }
-  });
-
-  taskSearch.addEventListener('keydown', (e) => {
-    const items = taskDropdown.querySelectorAll('.dropdown-item');
-    if (!items.length) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      activeDropdownIndex = Math.min(activeDropdownIndex + 1, items.length - 1);
-      updateActiveItem(items);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      activeDropdownIndex = Math.max(activeDropdownIndex - 1, 0);
-      updateActiveItem(items);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (activeDropdownIndex >= 0 && items[activeDropdownIndex]) {
-        items[activeDropdownIndex].click();
-      }
-    } else if (e.key === 'Escape') {
-      taskDropdown.style.display = 'none';
-    }
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!taskSearch.contains(e.target) && !taskDropdown.contains(e.target)) {
-      taskDropdown.style.display = 'none';
-    }
-  });
-
-  function renderDropdown(items, query) {
-    taskDropdown.innerHTML = items.slice(0, 40).map((item, i) => {
-      const highlighted = highlightMatch(item, query);
-      return `<div class="dropdown-item" data-value="${escapeHtml(item)}" data-index="${i}">${highlighted}</div>`;
-    }).join('');
-
-    taskDropdown.querySelectorAll('.dropdown-item').forEach(el => {
-      el.addEventListener('click', () => {
-        selectTask(el.dataset.value);
-        taskDropdown.style.display = 'none';
-        taskSearch.value = '';
-      });
-    });
-  }
-
-  function highlightMatch(text, query) {
-    const idx = text.toLowerCase().indexOf(query);
-    if (idx < 0) return escapeHtml(text);
-    return escapeHtml(text.slice(0, idx)) +
-      '<mark>' + escapeHtml(text.slice(idx, idx + query.length)) + '</mark>' +
-      escapeHtml(text.slice(idx + query.length));
-  }
-
-  function updateActiveItem(items) {
-    items.forEach((el, i) => {
-      el.classList.toggle('active', i === activeDropdownIndex);
-    });
-    if (items[activeDropdownIndex]) {
-      items[activeDropdownIndex].scrollIntoView({ block: 'nearest' });
-    }
-  }
-
-  function selectTask(value) {
-    taskTypeInput.value = value;
-    selectedTaskText.textContent = value;
-    selectedTask.style.display = 'flex';
-    taskSearch.style.display = 'none';
-
-    // Show/hide "Other" label field
-    if (value === 'Other') {
-      otherGroup.style.display = 'flex';
-    } else {
-      otherGroup.style.display = 'none';
-    }
-  }
-
-  clearTask.addEventListener('click', () => {
-    taskTypeInput.value = '';
-    selectedTask.style.display = 'none';
-    taskSearch.style.display = '';
-    taskSearch.value = '';
-    taskSearch.focus();
-    otherGroup.style.display = 'none';
-  });
 
   // ---- Save Defaults ----
   saveBtn.addEventListener('click', () => {
@@ -234,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dataToSave = {};
     dataToSave[`taskType_${activeProfile}`] = taskTypeInput.value;
-    dataToSave[`otherLabel_${activeProfile}`] = otherLabel.value;
     dataToSave.qualityScore = qualityScore.value;
     dataToSave.excellent = excellent.value;
     dataToSave.good = good.value;
@@ -256,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const config = {
       taskType: taskTypeInput.value,
-      otherLabel: otherLabel.value || 'X',
+      otherLabel: 'X', // Hardcoded as the Other input is removed
       qualityScore: qualityScore.value || '0',
       excellent: excellent.value || '0',
       good: good.value || '0',
