@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handshake Autofill</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-glow"></div>
+      <div class="header-content">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M0 9C0 5.8497 0 4.27456 0.613088 3.0713C1.15238 2.01289 2.01289 1.15238 3.0713 0.613088C4.27456 0 5.8497 0 9 0H21C24.1503 0 25.7254 0 26.9287 0.613088C27.9871 1.15238 28.8476 2.01289 29.3869 3.0713C30 4.27456 30 5.8497 30 9V21C30 24.1503 30 25.7254 29.3869 26.9287C28.8476 27.9871 27.9871 28.8476 26.9287 29.3869C25.7254 30 24.1503 30 21 30H9C5.8497 30 4.27456 30 3.0713 29.3869C2.01289 28.8476 1.15238 27.9871 0.613088 26.9287C0 25.7254 0 24.1503 0 21V9Z"
+              fill="#D3FB52" />
+            <path
+              d="M18.1066 6L16.9001 12.8625L13.3562 15.7591L15.0711 6H11.6359L8.4585 24H11.8937L12.776 19.0201L16.3328 16.1014L14.9292 24H18.3663L21.5418 6H18.1066Z"
+              fill="#052326" />
+          </svg>
+        </div>
+        <div class="header-text">
+          <h1>Handshake Autofill</h1>
+          <p class="subtitle">Handshake AI Task Submission</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Status -->
+    <div id="status" class="status" style="display:none;"></div>
+
+    <!-- Form -->
+    <div class="form-scroll">
+      <!-- Profile Selection -->
+      <div class="field-group">
+        <label class="field-label" for="profileSelect">
+          Profile Preset
+        </label>
+        <div class="custom-select" id="profileSelectContainer" tabindex="0">
+          <div class="custom-select-trigger" id="profileSelectTrigger">
+            <span>Profile 1</span>
+          </div>
+          <div class="custom-options" id="profileOptions">
+            <div class="custom-option selected" data-value="1">Profile 1</div>
+            <div class="custom-option" data-value="2">Profile 2</div>
+            <div class="custom-option" data-value="3">Profile 3</div>
+          </div>
+        </div>
+        <input type="hidden" id="profileSelect" value="1">
+      </div>
+
+      <!-- Task Type -->
+      <div class="field-group">
+        <label class="field-label" for="taskType">
+          Task Type
+        </label>
+        <div class="search-wrapper">
+          <input type="text" id="taskSearch" class="field-input" placeholder="Search tasks..." autocomplete="off">
+          <div id="taskDropdown" class="dropdown" style="display:none;"></div>
+        </div>
+        <input type="hidden" id="taskType" value="">
+        <div id="selectedTask" class="selected-badge" style="display:none;">
+          <span id="selectedTaskText"></span>
+          <button id="clearTask" class="clear-btn" title="Clear selection">&times;</button>
+        </div>
+      </div>
+
+      <!-- Other Label (conditional) -->
+      <div id="otherGroup" class="field-group" style="display:none;">
+        <label class="field-label" for="otherLabel">
+          Other Task Label
+        </label>
+        <input type="text" id="otherLabel" class="field-input" placeholder='e.g. 260105-sketch-to-photorealistic'
+          value="X">
+      </div>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Quality Score -->
+      <div class="field-group">
+        <label class="field-label" for="qualityScore">
+          Quality Score Average
+          <span class="field-hint">(0–3)</span>
+        </label>
+        <input type="number" id="qualityScore" class="field-input field-number" min="0" max="3" step="0.01" value="0">
+      </div>
+
+      <!-- Rating Counts -->
+      <div class="rating-grid">
+        <div class="field-group rating-field">
+          <label class="field-label small" for="excellent"> Excellent </label>
+          <input type="number" id="excellent" class="field-input field-number" min="0" max="1000" value="0">
+        </div>
+        <div class="field-group rating-field">
+          <label class="field-label small" for="good"> Good </label>
+          <input type="number" id="good" class="field-input field-number" min="0" max="1000" value="0">
+        </div>
+        <div class="field-group rating-field">
+          <label class="field-label small" for="fair"> Fair </label>
+          <input type="number" id="fair" class="field-input field-number" min="0" max="1000" value="0">
+        </div>
+        <div class="field-group rating-field">
+          <label class="field-label small" for="bad"> Bad </label>
+          <input type="number" id="bad" class="field-input field-number" min="0" max="1000" value="0">
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="saveBtn" class="btn btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path
+            d="M11.5 12.25H2.5C2.16848 12.25 1.85054 12.1183 1.61612 11.8839C1.3817 11.6495 1.25 11.3315 1.25 11V3C1.25 2.66848 1.3817 2.35054 1.61612 2.11612C1.85054 1.8817 2.16848 1.75 2.5 1.75H9.5L12.75 5V11C12.75 11.3315 12.6183 11.6495 12.3839 11.8839C12.1495 12.1183 11.8315 12.25 11.5 12.25Z"
+            stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M9.75 12.25V7.75H4.25V12.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <path d="M4.25 1.75V5H8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+        Save Defaults
+      </button>
+      <button id="autofillBtn" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M12.25 7L7.75 1.75V5.25C3.25 5.83 1.75 9.33 1.75 12.25C3.33 10.08 5.25 9.12 7.75 9.12V12.25L12.25 7Z"
+            stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Autofill Page
+      </button>
+    </div>
+
+    <!-- Auto-advance toggle -->
+    <div class="toggle-row">
+      <label class="toggle-label" for="autoAdvance">
+        Auto-advance through all steps
+      </label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="autoAdvance" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <script src="tasks.js"></script>
+  <script src="popup.js"></script>
+</body>
+
+</html>

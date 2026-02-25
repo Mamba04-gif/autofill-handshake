@@ -1,0 +1,34 @@
+{
+    "manifest_version": 3,
+    "name": "Handshake Autofill",
+    "version": "1.0.0",
+    "description": "Autofill Handshake AI task submission forms",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://ai.joinhandshake.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": "icons/icon.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://ai.joinhandshake.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "icons": {
+        "16": "icons/icon.png",
+        "48": "icons/icon.png",
+        "128": "icons/icon.png"
+    }
+}
